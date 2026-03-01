@@ -1,4 +1,3 @@
-
 import 'package:technical_assignment/core/network/api_client.dart';
 import 'package:technical_assignment/features/storeShop/data/models/store_model.dart';
 
@@ -13,14 +12,18 @@ class StoreRemoteDataSourceImpl implements StoreRemoteDataSource {
 
   @override
   Future<List<StoreModel>> getStores() async {
-    final response = await client.get(
-      "/shop/test/find/all/shop",
-    );
+    try {
+      final response = await client.get("/shop/test/find/all/shop");
 
-    final results = response.data["result"] as List<dynamic>;
+      if (response.statusCode != 200) {
+        throw Exception("Server error");
+      }
 
-    return results
-        .map((json) => StoreModel.fromJson(json))
-        .toList();
+      final data = response.data["result"] as List<dynamic>;
+
+      return data.map((json) => StoreModel.fromJson(json)).toList();
+    } catch (e) {
+      throw Exception("Network request failed");
+    }
   }
 }

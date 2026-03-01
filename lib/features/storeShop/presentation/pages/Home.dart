@@ -14,6 +14,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -31,9 +39,8 @@ class _HomeState extends State<Home> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            backgroundColor: const Color(0xFF222831),
+            backgroundColor: const Color.fromARGB(255, 16, 19, 23),
           ),
-          // backgroundColor: const Color.fromARGB(255, 245, 199, 93),
           body: BlocBuilder<StoreCubit, StoreState>(
             builder: (context, state) {
               return Column(
@@ -47,19 +54,36 @@ class _HomeState extends State<Home> {
                     ),
 
                     child: TextField(
-                      onChanged: (value) =>
-                          context.read<StoreCubit>().setSearchQuery(value),
+                      controller: _searchController,
+                      onChanged: (value) {
+                        context.read<StoreCubit>().setSearchQuery(value);
+                        setState(() {}); // لتحديث زر المسح
+                      },
                       decoration: InputDecoration(
                         hintText: "Search stores...",
-                        prefixIcon: Icon(Icons.search),
-                        enabledBorder: OutlineInputBorder(
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  context.read<StoreCubit>().setSearchQuery('');
+                                  setState(() {});
+                                },
+                              )
+                            : null,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        enabledBorder: const OutlineInputBorder(
                           borderSide: BorderSide(
                             color: Color(0xFF393E46),
                             width: 1.0,
                           ),
                           borderRadius: BorderRadius.all(Radius.circular(10.0)),
                         ),
-                        focusedBorder: OutlineInputBorder(
+                        focusedBorder: const OutlineInputBorder(
                           borderSide: BorderSide(
                             color: Color(0xFFFFD369),
                             width: 2.0,
@@ -67,7 +91,7 @@ class _HomeState extends State<Home> {
                           borderRadius: BorderRadius.all(Radius.circular(10.0)),
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
                     ),
@@ -134,7 +158,11 @@ class _HomeState extends State<Home> {
                     child: Builder(
                       builder: (_) {
                         if (state is StoreLoading) {
-                          return Center(child: CircularProgressIndicator(color: Color(0xFF222831),));
+                          return Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF222831),
+                            ),
+                          );
                         }
                         if (state is StoreLoaded) {
                           if (state.stores.isEmpty) {
@@ -173,6 +201,26 @@ class _HomeState extends State<Home> {
                                 child: StoreCard(store: store),
                               );
                             },
+                          );
+                        }
+                        if (state is StoreError) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.error_outline, size: 50),
+                                const SizedBox(height: 12),
+                                Text("Failed to load stores"),
+                                Text(state.message),
+                                const SizedBox(height: 12),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    context.read<StoreCubit>().fetchStores();
+                                  },
+                                  child: const Text("Retry"),
+                                ),
+                              ],
+                            ),
                           );
                         }
                         return SizedBox();

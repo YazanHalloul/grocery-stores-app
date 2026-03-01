@@ -20,6 +20,7 @@ class StoreCubit extends Cubit<StoreState> {
   StoreCubit(this.getStores) : super(StoreLoading());
 
   void fetchStores() async {
+    emit(StoreLoading());
     try {
       final result = await getStores();
       _allStores = result;
@@ -66,15 +67,14 @@ class StoreCubit extends Cubit<StoreState> {
     List<StoreEntity> filteredStores = [..._allStores];
 
     if (_searchQuery.isNotEmpty) {
-      filteredStores = filteredStores
-          .where(
-            (store) =>
-                store.name?.en?.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ??
-                false,
-          )
-          .toList();
+      final query = _searchQuery.toLowerCase();
+
+      filteredStores = filteredStores.where((store) {
+        final name = store.name?.en?.toLowerCase() ?? '';
+        final description = store.description?.en?.toLowerCase() ?? '';
+
+        return name.contains(query) || description.contains(query);
+      }).toList();
     }
 
     if (_openOnly) {
