@@ -4,7 +4,7 @@ class ApiClient {
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: "https://api.orianosy.com",
-      headers: {'secretKey': "PostInterview022026"},
+      headers: {'secretKey': const String.fromEnvironment("SECRET_KEY")},
       queryParameters: {'deviceKind': 'mobile'},
     ),
   );
