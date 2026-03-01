@@ -16,3 +16,14 @@ List<BoxShadow> get boxShadow {
     ),
   ];
 }
+
+List<BoxShadow> get boxShadow2 {
+  return [
+    BoxShadow(
+      color: Color.fromRGBO(0, 0, 0, 0.15),
+      blurRadius: 3,
+      spreadRadius: 0,
+      offset: Offset(0, 3),
+    ),
+  ];
+}

@@ -11,12 +11,13 @@ class StoreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
+        border: Border.all(color: Color(0xFF393E46), width: 0.4),
         gradient: LinearGradient(
           colors: [Colors.white, Colors.white, Colors.white, Color(0xFFFFD369)],
           begin: Alignment.bottomRight,
           end: Alignment.topLeft,
         ),
-        boxShadow: boxShadow,
+        boxShadow: boxShadow2,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
@@ -30,17 +31,21 @@ class StoreCard extends StatelessWidget {
 
               decoration: BoxDecoration(
                 boxShadow: boxShadow,
-                borderRadius: BorderRadius.circular(
-                  11,
-                ),
-                border: Border.all(
-                  color: Colors.white, 
-                  width: 2,
-                ),
+                borderRadius: BorderRadius.circular(11),
+                border: Border.all(color: Colors.white, width: 2),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(store.coverPhoto ?? '', fit: BoxFit.cover),
+                child: Image.network(
+                  store.coverPhoto ?? '',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey.shade200,
+                      child: const Icon(Icons.store, size: 40),
+                    );
+                  },
+                ),
               ),
             ),
 

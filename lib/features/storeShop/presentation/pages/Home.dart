@@ -25,7 +25,7 @@ class _HomeState extends State<Home> {
         child: Scaffold(
           appBar: AppBar(
             title: const Text(
-              "Shop Stores",
+              "Stores",
               style: TextStyle(
                 color: Color(0xFFFFD369),
                 fontWeight: FontWeight.bold,
@@ -50,7 +50,7 @@ class _HomeState extends State<Home> {
                       onChanged: (value) =>
                           context.read<StoreCubit>().setSearchQuery(value),
                       decoration: InputDecoration(
-                        hintText: "Search shops...",
+                        hintText: "Search stores...",
                         prefixIcon: Icon(Icons.search),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -134,7 +134,7 @@ class _HomeState extends State<Home> {
                     child: Builder(
                       builder: (_) {
                         if (state is StoreLoading) {
-                          return Center(child: CircularProgressIndicator());
+                          return Center(child: CircularProgressIndicator(color: Color(0xFF222831),));
                         }
                         if (state is StoreLoaded) {
                           if (state.stores.isEmpty) {
