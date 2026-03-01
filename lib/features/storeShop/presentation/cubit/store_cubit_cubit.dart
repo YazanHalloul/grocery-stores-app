@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:technical_assignment/features/storeShop/domain/entities/store.dart';
@@ -13,6 +15,7 @@ class StoreCubit extends Cubit<StoreState> {
   String _searchQuery = '';
   bool _openOnly = false;
   SortOption _sortOption = SortOption.none;
+  Timer? _debounce;
 
   StoreCubit(this.getStores) : super(StoreLoading());
 
@@ -35,7 +38,14 @@ class StoreCubit extends Cubit<StoreState> {
 
   void setSearchQuery(String query) {
     _searchQuery = query;
-    _applyFilters();
+
+    if (_debounce?.isActive ?? false) {
+      _debounce!.cancel();
+    }
+
+    _debounce = Timer(const Duration(milliseconds: 800), () {
+      _applyFilters();
+    });
   }
 
   void setOpenOnly(bool openOnly) {
@@ -48,6 +58,10 @@ class StoreCubit extends Cubit<StoreState> {
     _applyFilters();
   }
 
+  int _extractMinutes(String eta) {
+    return int.tryParse(eta.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+  }
+
   void _applyFilters() {
     List<StoreEntity> filteredStores = [..._allStores];
 
@@ -55,21 +69,32 @@ class StoreCubit extends Cubit<StoreState> {
       filteredStores = filteredStores
           .where(
             (store) =>
-                store.name?.en?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false,
+                store.name?.en?.toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                ) ??
+                false,
           )
           .toList();
     }
 
     if (_openOnly) {
-      filteredStores = filteredStores.where((store) => store.availability == true).toList();
+      filteredStores = filteredStores
+          .where((store) => store.availability == true)
+          .toList();
     }
 
     switch (_sortOption) {
       case SortOption.eta:
-        filteredStores.sort((a, b) => a.estimatedDeliveryTime!.compareTo(b.estimatedDeliveryTime!));
+        filteredStores.sort((a, b) {
+          final aMinutes = _extractMinutes(a.estimatedDeliveryTime ?? '');
+          final bMinutes = _extractMinutes(b.estimatedDeliveryTime ?? '');
+          return aMinutes.compareTo(bMinutes);
+        });
         break;
       case SortOption.minimumOrder:
-        filteredStores.sort((a, b) => a.minimumOrder!.amount.compareTo(b.minimumOrder!.amount));
+        filteredStores.sort(
+          (a, b) => a.minimumOrder!.amount.compareTo(b.minimumOrder!.amount),
+        );
         break;
       default:
         break;
