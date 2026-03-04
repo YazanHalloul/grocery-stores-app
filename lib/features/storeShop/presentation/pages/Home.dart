@@ -57,7 +57,6 @@ class _HomeState extends State<Home> {
                       controller: _searchController,
                       onChanged: (value) {
                         context.read<StoreCubit>().setSearchQuery(value);
-                        setState(() {}); // لتحديث زر المسح
                       },
                       decoration: InputDecoration(
                         hintText: "Search stores...",
@@ -68,7 +67,6 @@ class _HomeState extends State<Home> {
                                 onPressed: () {
                                   _searchController.clear();
                                   context.read<StoreCubit>().setSearchQuery('');
-                                  setState(() {});
                                 },
                               )
                             : null,
